@@ -21,9 +21,9 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
     // 1. REAPROVEITADO E MELHORADO: Valida o Profissional direto (com ou sem escala) ignorando cancelados
     @Query("""
         SELECT COUNT(a) > 0 FROM Agendamento a 
-        WHERE a.profissionalSaude.id = :profissionalId 
-          AND a.dataHoraAgendada = :dataHora 
-          AND a.statusAgendamento != com.example.sghss.model.enums.StatusAgendamento.CANCELADO
+         WHERE a.escala.colaborador.id = :profissionalId 
+           AND a.dataHoraAgendada = :dataHora 
+           AND a.statusAgendamento != com.example.sghss.model.enums.StatusAgendamento.CANCELADO
     """)
     boolean existeConflitoHorarioProfissional(
             @Param("profissionalId") UUID profissionalId,
@@ -49,7 +49,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
     """)
     List<LocalDateTime> findHorariosOcupadosPorEscala(@Param("escalaId") UUID escalaId);
 
-    List<Agendamento> findByProfissionalSaudeIdOrderByDataHoraAgendadaAsc(UUID profissionalId);
+    List<Agendamento> findByEscalaColaboradorIdOrderByDataHoraAgendadaAsc(UUID profissionalId);
 
     List<Agendamento> findByDataHoraAgendadaBetweenOrderByDataHoraAgendadaAsc(LocalDateTime inicio, LocalDateTime fim);
 }

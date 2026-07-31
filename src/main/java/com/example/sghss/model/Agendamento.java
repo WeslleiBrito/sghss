@@ -2,7 +2,6 @@ package com.example.sghss.model;
 
 import com.example.sghss.exception.BusinessException;
 import com.example.sghss.model.base.EntidadeBase;
-import com.example.sghss.model.base.UnidadeSaude;
 import com.example.sghss.model.enums.StatusAgendamento;
 import com.example.sghss.model.enums.TipoAtendimento;
 import jakarta.persistence.*;
@@ -24,16 +23,9 @@ public class Agendamento extends EntidadeBase {
     @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 
+    // --- CIRURGIA FEITA AQUI: Profissional e Unidade removidos! A Escala é a dona da verdade. ---
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "profissional_saude_id", nullable = false)
-    private ProfissionalSaude profissionalSaude;
-
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "unidade_saude_id", nullable = false)
-    private UnidadeSaude unidadeSaude;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "escala_id")
+    @JoinColumn(name = "escala_id", nullable = false)
     private Escala escala;
 
     @Enumerated(EnumType.STRING)

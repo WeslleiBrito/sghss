@@ -10,17 +10,11 @@ public record AgendamentoCreateDTO(
         @NotNull(message = "O ID do paciente é obrigatório.")
         UUID pacienteId,
 
-        @NotNull(message = "O ID do profissional de saúde (Médico/Enfermeiro) é obrigatório.")
-        UUID profissionalSaudeId,
-
-        @NotNull(message = "O ID da unidade de saúde é obrigatório.")
-        UUID unidadeSaudeId,
-
-        // Opcional: Permite tanto agendar por grade (escala) quanto fazer encaixes diretos
+        @NotNull(message = "O ID da escala (agenda) é obrigatório.")
         UUID escalaId,
 
         @NotNull(message = "A data e hora do agendamento são obrigatórias.")
-        @Future(message = "O agendamento deve ser realizado para uma data e hora no futuro.")
+        @Future(message = "O agendamento deve ser realizado para o futuro.")
         LocalDateTime dataHoraAgendada,
 
         @NotNull(message = "O tipo de atendimento é obrigatório.")

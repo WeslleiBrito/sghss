@@ -229,8 +229,6 @@ public class DataSeeder implements CommandLineRunner {
                         Agendamento ag = new Agendamento();
                         ag.setCodigoAgendamento("AGE-" + System.nanoTime());
                         ag.setPaciente(pacienteSorteado);
-                        ag.setProfissionalSaude(medico);
-                        ag.setUnidadeSaude(clinica);
                         ag.setEscala(escala);
                         ag.setTipoAtendimento(TipoAtendimento.CONSULTA_ROTINA);
                         ag.setDataHoraAgendada(slotAtual);

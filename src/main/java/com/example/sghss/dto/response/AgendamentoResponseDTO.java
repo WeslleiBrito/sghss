@@ -31,10 +31,13 @@ public record AgendamentoResponseDTO(
                 agendamento.getCodigoAgendamento(),
                 agendamento.getPaciente().getId(),
                 agendamento.getPaciente().getPessoaFisica().getNome(),
-                agendamento.getProfissionalSaude().getId(),
-                agendamento.getProfissionalSaude().getPessoaFisica().getNome(),
-                agendamento.getUnidadeSaude().getId(),
-                agendamento.getUnidadeSaude().getInstituicao().getRazaoSocial(),
+
+                // NAVEGANDO PELA ESCALA:
+                agendamento.getEscala().getColaborador().getId(),
+                agendamento.getEscala().getColaborador().getPessoaFisica().getNome(),
+                agendamento.getEscala().getUnidadeSaude().getId(),
+                agendamento.getEscala().getUnidadeSaude().getInstituicao().getRazaoSocial(),
+
                 agendamento.getTipoAtendimento() != null ? agendamento.getTipoAtendimento().name() : null,
                 agendamento.getDataHoraAgendada(),
                 agendamento.getStatusAgendamento() != null ? agendamento.getStatusAgendamento().name() : null,

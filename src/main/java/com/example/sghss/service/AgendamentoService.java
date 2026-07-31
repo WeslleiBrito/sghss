@@ -30,31 +30,21 @@ public class AgendamentoService {
 
     @Transactional
     public AgendamentoResponseDTO agendar(AgendamentoCreateDTO dto) {
-        // 1. Validação de Atores do Domínio
+
         Paciente paciente = pacienteRepository.findById(dto.pacienteId())
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado."));
 
-        ProfissionalSaude profissional = profissionalSaudeRepository.findById(dto.profissionalSaudeId())
-                .orElseThrow(() -> new EntityNotFoundException("Profissional de saúde não encontrado."));
+        Escala escala = escalaRepository.findById(dto.escalaId())
+                .orElseThrow(() -> new EntityNotFoundException("Escala não encontrada."));
 
-        UnidadeSaude unidade = unidadeSaudeRepository.findById(dto.unidadeSaudeId())
-                .orElseThrow(() -> new EntityNotFoundException("Unidade de saúde não encontrada."));
-
-        // 2. Validações de Escala (se informada)
-        Escala escala = null;
-        if (dto.escalaId() != null) {
-            escala = escalaRepository.findById(dto.escalaId())
-                    .orElseThrow(() -> new EntityNotFoundException("Escala não encontrada."));
-
-            // Garantir que a hora está dentro da escala do profissional
-            if (dto.dataHoraAgendada().isBefore(escala.getDataHoraInicio()) ||
-                    dto.dataHoraAgendada().isAfter(escala.getDataHoraFim())) {
-                throw new BusinessException("O horário solicitado está fora do turno de trabalho desta escala.");
-            }
+        // Garantir que a hora está dentro da escala do profissional
+        if (dto.dataHoraAgendada().isBefore(escala.getDataHoraInicio()) ||
+                dto.dataHoraAgendada().isAfter(escala.getDataHoraFim())) {
+            throw new BusinessException("O horário solicitado está fora do turno de trabalho desta escala.");
         }
 
-        // 3. Checagem de Conflitos (Concorrência e Overbooking)
-        if (agendamentoRepository.existeConflitoHorarioProfissional(profissional.getId(), dto.dataHoraAgendada())) {
+        // Checagem de Conflitos pegando o ID de dentro da Escala!
+        if (agendamentoRepository.existeConflitoHorarioProfissional(escala.getColaborador().getId(), dto.dataHoraAgendada())) {
             throw new BusinessException("O profissional já possui um atendimento marcado para este horário.");
         }
 
@@ -62,13 +52,10 @@ public class AgendamentoService {
             throw new BusinessException("O paciente já possui um atendimento marcado para este mesmo horário.");
         }
 
-        // 4. Criação da Entidade Rica
         Agendamento agendamento = new Agendamento();
         agendamento.setCodigoAgendamento("AGE-" + System.currentTimeMillis());
         agendamento.setPaciente(paciente);
-        agendamento.setProfissionalSaude(profissional);
-        agendamento.setUnidadeSaude(unidade);
-        agendamento.setEscala(escala);
+        agendamento.setEscala(escala); // Só precisa setar a escala!
         agendamento.setTipoAtendimento(dto.tipoAtendimento());
         agendamento.setDataHoraAgendada(dto.dataHoraAgendada());
         agendamento.setStatusAgendamento(StatusAgendamento.AGENDADO);
@@ -172,7 +159,7 @@ public class AgendamentoService {
 
     @Transactional(readOnly = true)
     public List<AgendamentoResponseDTO> listarPorMedico(UUID medicoId) {
-        return agendamentoRepository.findByProfissionalSaudeIdOrderByDataHoraAgendadaAsc(medicoId)
+        return agendamentoRepository.findByEscalaColaboradorIdOrderByDataHoraAgendadaAsc(medicoId)
                 .stream()
                 .map(AgendamentoResponseDTO::fromEntity)
                 .toList();
