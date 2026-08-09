@@ -1,6 +1,7 @@
 package com.example.sghss.service;
 
 
+import com.example.sghss.dto.response.EscalaResumoDTO;
 import com.example.sghss.model.Escala;
 import com.example.sghss.repository.EscalaRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.sghss.dto.response.EscalaResponseDTO;
 import java.util.List;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -51,6 +53,17 @@ public class EscalaService {
         return escalaRepository.findAll().stream()
                 .filter(e -> e.getDataHoraFim().isAfter(LocalDateTime.now().minusDays(1)))
                 .map(EscalaResponseDTO::fromEntity)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<EscalaResumoDTO> listarEscalasFuturasPorProfissional(UUID profissionalId) {
+        // Pega o momento exato em que a recepcionista clicou no médico
+        LocalDateTime agora = LocalDateTime.now();
+
+        return escalaRepository.findByColaboradorIdAndDataHoraInicioAfterOrderByDataHoraInicioAsc(profissionalId, agora)
+                .stream()
+                .map(EscalaResumoDTO::fromEntity)
                 .toList();
     }
 

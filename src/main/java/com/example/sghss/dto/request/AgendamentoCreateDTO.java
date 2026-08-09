@@ -17,6 +17,9 @@ public record AgendamentoCreateDTO(
         @Future(message = "O agendamento deve ser realizado para o futuro.")
         LocalDateTime dataHoraAgendada,
 
+        @NotNull(message = "A especialidade do atendimento é obrigatória.")
+        UUID especialidadeId,
+
         @NotNull(message = "O tipo de atendimento é obrigatório.")
         TipoAtendimento tipoAtendimento,
 

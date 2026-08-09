@@ -5,7 +5,6 @@ import com.example.sghss.dto.response.AgendamentoResponseDTO;
 import com.example.sghss.dto.response.HorarioDisponivelDTO;
 import com.example.sghss.exception.BusinessException;
 import com.example.sghss.model.*;
-import com.example.sghss.model.base.UnidadeSaude;
 import com.example.sghss.model.enums.StatusAgendamento;
 import com.example.sghss.repository.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -13,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +24,9 @@ public class AgendamentoService {
 
     private final AgendamentoRepository agendamentoRepository;
     private final PacienteRepository pacienteRepository;
-    private final ProfissionalSaudeRepository profissionalSaudeRepository;
-    private final UnidadeSaudeRepository unidadeSaudeRepository;
     private final EscalaRepository escalaRepository;
+    private final EspecialidadeRepository especialidadeRepository;
+    private final ProfissionalSaudeRepository profissionalSaudeRepository;
 
     @Transactional
     public AgendamentoResponseDTO agendar(AgendamentoCreateDTO dto) {
@@ -53,13 +53,19 @@ public class AgendamentoService {
         }
 
         Agendamento agendamento = new Agendamento();
-        agendamento.setCodigoAgendamento("AGE-" + System.currentTimeMillis());
+        String anoAtual = String.valueOf(java.time.LocalDate.now().getYear());
+        String codigoUnico = java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        agendamento.setCodigoAgendamento("AGE-" + anoAtual + "-" + codigoUnico);
         agendamento.setPaciente(paciente);
         agendamento.setEscala(escala); // Só precisa setar a escala!
         agendamento.setTipoAtendimento(dto.tipoAtendimento());
         agendamento.setDataHoraAgendada(dto.dataHoraAgendada());
         agendamento.setStatusAgendamento(StatusAgendamento.AGENDADO);
         agendamento.setObservacoesRecepcao(dto.observacoesRecepcao());
+
+        Especialidade especialidade = especialidadeRepository.findById(dto.especialidadeId())
+                .orElseThrow(() -> new EntityNotFoundException("Especialidade não encontrada."));
+        agendamento.setEspecialidade(especialidade);
 
         Agendamento salvo = agendamentoRepository.save(agendamento);
         return AgendamentoResponseDTO.fromEntity(salvo);
@@ -83,6 +89,16 @@ public class AgendamentoService {
         Agendamento agendamento = agendamentoRepository.findById(agendamentoId)
                 .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado."));
 
+        UUID profissionalId = agendamento.getEscala().getColaborador().getId();
+        boolean temAtendimentoAberto = agendamentoRepository.existsByEscalaColaboradorIdAndStatusAgendamento(
+                profissionalId,
+                StatusAgendamento.EM_ATENDIMENTO
+        );
+
+        if (temAtendimentoAberto) {
+            throw new BusinessException("Ação bloqueada: Você já possui um paciente em atendimento. Conclua o prontuário atual antes de chamar o próximo.");
+        }
+        
         agendamento.iniciarAtendimento();
         return AgendamentoResponseDTO.fromEntity(agendamento);
     }
@@ -169,6 +185,32 @@ public class AgendamentoService {
     public List<AgendamentoResponseDTO> listarPorPaciente(UUID pacienteId) {
         // Já existia essa query no seu repositório!
         return agendamentoRepository.findByPacienteIdOrderByDataHoraAgendadaDesc(pacienteId)
+                .stream()
+                .map(AgendamentoResponseDTO::fromEntity)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AgendamentoResponseDTO> buscarAgendaPorData(LocalDate data) {
+        LocalDateTime inicioDoDia = data.atStartOfDay(); // 00:00:00
+        LocalDateTime fimDoDia = data.atTime(23, 59, 59); // 23:59:59
+
+        return agendamentoRepository.findByDataHoraAgendadaBetween(inicioDoDia, fimDoDia)
+                .stream()
+                .map(AgendamentoResponseDTO::fromEntity)
+                .toList();
+    }
+
+    // Adicione no seu AgendamentoService.java:
+
+    @Transactional(readOnly = true)
+    public List<AgendamentoResponseDTO> listarMinhaFila(Usuario usuarioLogado) {
+        // 1. Descobre quem é o profissional usando o usuário do Token JWT
+        ProfissionalSaude profissional = profissionalSaudeRepository.findByPessoaFisicaId(usuarioLogado.getPessoaFisica().getId())
+                .orElseThrow(() -> new BusinessException("O usuário logado não possui um registro ativo de Profissional de Saúde."));
+
+        // 2. Busca a agenda baseada no ID real e seguro dele
+        return agendamentoRepository.findByEscalaColaboradorIdOrderByDataHoraAgendadaAsc(profissional.getId())
                 .stream()
                 .map(AgendamentoResponseDTO::fromEntity)
                 .toList();

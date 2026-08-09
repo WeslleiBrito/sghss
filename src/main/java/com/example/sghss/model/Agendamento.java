@@ -32,6 +32,10 @@ public class Agendamento extends EntidadeBase {
     @Column(name = "tipo_atendimento", nullable = false, length = 30)
     private TipoAtendimento tipoAtendimento;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "especialidade_id", nullable = false)
+    private Especialidade especialidade;
+
     @Column(name = "data_hora_agendada", nullable = false)
     private LocalDateTime dataHoraAgendada;
 

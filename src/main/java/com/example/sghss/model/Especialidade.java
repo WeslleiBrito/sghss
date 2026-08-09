@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 @Table(name = "tb_especialidade")
 public class Especialidade extends EntidadeBase {
 
+
     @Column(nullable = false, unique = true, length = 100)
     private String nome; // Ex: "Cardiologia", "Pediatria"
 

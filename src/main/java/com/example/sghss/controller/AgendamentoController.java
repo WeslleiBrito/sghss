@@ -3,17 +3,24 @@ package com.example.sghss.controller;
 import com.example.sghss.dto.request.AgendamentoCreateDTO;
 import com.example.sghss.dto.response.AgendamentoResponseDTO;
 import com.example.sghss.dto.response.HorarioDisponivelDTO;
+import com.example.sghss.model.Usuario;
+import com.example.sghss.model.enums.StatusAgendamento;
 import com.example.sghss.service.AgendamentoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/agendamentos")
@@ -132,5 +139,34 @@ public class AgendamentoController {
     @PreAuthorize("hasAnyRole('RECEPCIONISTA', 'ADMIN', 'PACIENTE', 'MEDICO')")
     public ResponseEntity<List<AgendamentoResponseDTO>> listarPorPaciente(@PathVariable UUID pacienteId) {
         return ResponseEntity.ok(agendamentoService.listarPorPaciente(pacienteId));
+    }
+
+    @GetMapping("/por-data")
+    @PreAuthorize("hasAnyRole('RECEPCIONISTA', 'ADMIN')")
+    public ResponseEntity<List<AgendamentoResponseDTO>> listarPorData(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data) {
+
+        return ResponseEntity.ok(agendamentoService.buscarAgendaPorData(data));
+    }
+
+    // Adicione no seu AgendamentoController.java (junto das outras rotas de busca):
+
+    /**
+     * A "Minha Fila": O médico logado pede a própria agenda sem precisar informar o seu ID.
+     */
+    @GetMapping("/minha-fila")
+    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
+    public ResponseEntity<List<AgendamentoResponseDTO>> listarMinhaFila(
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+
+        return ResponseEntity.ok(agendamentoService.listarMinhaFila(usuarioLogado));
+    }
+
+    @GetMapping("/status")
+    public ResponseEntity<List<String>> listarStatusPermitidos() {
+        List<String> status = Arrays.stream(StatusAgendamento.values())
+                .map(Enum::name)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(status);
     }
 }

@@ -29,6 +29,7 @@ public class AuthService {
         Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
 
         // 4. Fabrica o token JWT
+        assert usuarioLogado != null;
         String tokenJwt = tokenService.gerarToken(usuarioLogado);
 
         // 5. Extrai os perfis como Strings normais (ex: "ROLE_RECEPCIONISTA", "ROLE_MEDICO")
@@ -36,6 +37,6 @@ public class AuthService {
                 .map(Enum::name)
                 .collect(Collectors.toSet());
 
-        return new TokenResponseDTO(tokenJwt, "Bearer", usuarioLogado.getLogin(), perfis);
+        return new TokenResponseDTO(tokenJwt, "Bearer", usuarioLogado.getLogin(), usuarioLogado.getUsername(), perfis);
     }
 }

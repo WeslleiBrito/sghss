@@ -27,8 +27,8 @@ public class PrescricaoMedica extends EntidadeBase {
 
     // Quem assumiu a responsabilidade clínica? Exige CRM/COREN ativo!
     @ManyToOne(optional = false)
-    @JoinColumn(name = "medico_id", nullable = false)
-    private ProfissionalSaude medico;
+    @JoinColumn(name = "profissional_id", nullable = false)
+    private ProfissionalSaude profissionalSaude;
 
     @Column(name = "data_hora_emissao", nullable = false)
     private LocalDateTime dataHoraEmissao = LocalDateTime.now();

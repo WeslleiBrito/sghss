@@ -6,5 +6,6 @@ public record TokenResponseDTO(
         String token,
         String tipo,
         String login,
+        String name,
         Set<String> perfis
 ) {}

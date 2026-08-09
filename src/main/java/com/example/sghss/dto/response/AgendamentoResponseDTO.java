@@ -1,6 +1,9 @@
 package com.example.sghss.dto.response;
 
 import com.example.sghss.model.Agendamento;
+import com.example.sghss.model.Especialidade;
+import com.example.sghss.model.ProfissionalSaude;
+import com.example.sghss.model.base.Colaborador;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDateTime;
@@ -14,6 +17,7 @@ public record AgendamentoResponseDTO(
         String nomePaciente,
         UUID profissionalSaudeId,
         String nomeProfissional,
+        String especialidade,
         UUID unidadeSaudeId,
         String nomeUnidade,
         String tipoAtendimento,
@@ -26,6 +30,7 @@ public record AgendamentoResponseDTO(
 ) {
     // Método estático que converte a Entidade rica no DTO limpo para a API
     public static AgendamentoResponseDTO fromEntity(Agendamento agendamento) {
+
         return new AgendamentoResponseDTO(
                 agendamento.getId(),
                 agendamento.getCodigoAgendamento(),
@@ -35,6 +40,7 @@ public record AgendamentoResponseDTO(
                 // NAVEGANDO PELA ESCALA:
                 agendamento.getEscala().getColaborador().getId(),
                 agendamento.getEscala().getColaborador().getPessoaFisica().getNome(),
+                agendamento.getEspecialidade().getNome(),
                 agendamento.getEscala().getUnidadeSaude().getId(),
                 agendamento.getEscala().getUnidadeSaude().getInstituicao().getRazaoSocial(),
 

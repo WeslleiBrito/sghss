@@ -51,7 +51,8 @@ public class Usuario extends EntidadeBase implements UserDetails {
     @Override
     public String getPassword() { return this.senha; }
     @Override
-    public String getUsername() { return this.login; }
+    // public String getUsername() { return this.login; }
+    public String getUsername() {return this.pessoaFisica.getNome();}
     @Override
     public boolean isAccountNonExpired() { return true; }
     @Override

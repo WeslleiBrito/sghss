@@ -1,6 +1,5 @@
 package com.example.sghss.model.enums;
 
-
 import lombok.Getter;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import java.util.List;
@@ -10,7 +9,7 @@ import java.util.stream.Collectors;
 @Getter
 public enum PerfilAcesso {
 
-    // 1. PROFISSIONAL DE SAÚDE: Poder clínico total, zero poder financeiro ou de sistema
+    // 1. PROFISSIONAL DE SAÚDE (MÉDICO): Poder clínico total, zero poder financeiro ou de sistema
     ROLE_MEDICO(Set.of(
             Permissao.PRONTUARIO_LER,
             Permissao.PRONTUARIO_ESCREVER,
@@ -19,7 +18,14 @@ public enum PerfilAcesso {
             Permissao.AGENDAMENTO_CRIAR // Pode remarcar retorno do seu paciente
     )),
 
-    // 2. RECEPCIONISTA: Poder operacional na agenda e check-in
+    // 2. ENFERMAGEM: Acesso clínico para evolução, anotações de enfermagem e triagem
+    ROLE_ENFERMEIRO(Set.of(
+            Permissao.PRONTUARIO_LER,
+            Permissao.PRONTUARIO_ESCREVER
+            // Caso você crie uma permissão específica no futuro (ex: Permissao.TRIAGEM_REALIZAR), você pode adicionar aqui.
+    )),
+
+    // 3. RECEPCIONISTA: Poder operacional na agenda e check-in
     ROLE_RECEPCIONISTA(Set.of(
             Permissao.AGENDAMENTO_CRIAR,
             Permissao.AGENDAMENTO_CANCELAR,
@@ -27,12 +33,12 @@ public enum PerfilAcesso {
             Permissao.CAIXA_OPERAR
     )),
 
-    // 3. SEGURANÇA / APOIO: Enxuto, vê apenas o fluxo de portaria
+    // 4. SEGURANÇA / APOIO: Enxuto, vê apenas o fluxo de portaria
     ROLE_SEGURANCA(Set.of(
             Permissao.FLUXO_PORTARIA_LER
     )),
 
-    // 4. ADMINISTRADOR: Gestão do sistema e RH, mas BLINDADO contra o domínio clínico!
+    // 5. ADMINISTRADOR: Gestão do sistema e RH, mas BLINDADO contra o domínio clínico!
     ROLE_ADMIN(Set.of(
             Permissao.USUARIO_CRIAR,
             Permissao.USUARIO_GERENCIAR,
@@ -41,7 +47,7 @@ public enum PerfilAcesso {
             Permissao.AGENDAMENTO_CANCELAR
     )),
 
-    // 5. PACIENTE: Acesso restrito apenas para interagir com seus próprios dados via App
+    // 6. PACIENTE: Acesso restrito apenas para interagir com seus próprios dados via App
     ROLE_PACIENTE(Set.of(
             Permissao.PRONTUARIO_LER, // (O Spring Security garantirá via contexto que é apenas o DELE)
             Permissao.AGENDAMENTO_CRIAR

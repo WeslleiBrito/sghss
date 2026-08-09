@@ -18,6 +18,8 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
 
     List<Agendamento> findByPacienteIdOrderByDataHoraAgendadaDesc(UUID pacienteId);
 
+    boolean existsByEscalaColaboradorIdAndStatusAgendamento(UUID profissionalId, com.example.sghss.model.enums.StatusAgendamento status);
+
     // 1. REAPROVEITADO E MELHORADO: Valida o Profissional direto (com ou sem escala) ignorando cancelados
     @Query("""
         SELECT COUNT(a) > 0 FROM Agendamento a 
@@ -52,4 +54,6 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
     List<Agendamento> findByEscalaColaboradorIdOrderByDataHoraAgendadaAsc(UUID profissionalId);
 
     List<Agendamento> findByDataHoraAgendadaBetweenOrderByDataHoraAgendadaAsc(LocalDateTime inicio, LocalDateTime fim);
+
+    List<Agendamento> findByDataHoraAgendadaBetween(LocalDateTime inicio, LocalDateTime fim);
 }
