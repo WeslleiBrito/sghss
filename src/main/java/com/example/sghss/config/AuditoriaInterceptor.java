@@ -21,25 +21,21 @@ public class AuditoriaInterceptor implements HandlerInterceptor {
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
 
-        // 1. Só queremos registrar quem está extraindo informações (GET)
         if ("GET".equalsIgnoreCase(request.getMethod())) {
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
-            // 2. Garante que o usuário está logado e tem um token JWT válido
             if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
 
-                String usuario = auth.getName(); // O Spring pega o Subject do Token (Email ou CPF)
+                String usuario = auth.getName();
                 String endpoint = request.getRequestURI();
-                String parametros = request.getQueryString(); // Pega buscas feitas na URL (ex: ?escalaId=...)
+                String parametros = request.getQueryString();
                 String ip = request.getRemoteAddr();
 
-                // 3. Dispara para o serviço em segundo plano
                 auditoriaService.registrarLogLeitura(usuario, endpoint, parametros, ip);
             }
         }
 
-        // 4. Libera a requisição para seguir normalmente até o Controller
         return true;
     }
 }

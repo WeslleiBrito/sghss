@@ -33,12 +33,10 @@ public class Paciente extends EntidadeBase {
     @Column(nullable = false)
     private Boolean ativo = true;
 
-    // 1. Tipo Sanguíneo
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_sanguineo", length = 15)
     private TipoSanguineo tipoSanguineo;
 
-    // 2. Alergias Conhecidas
     @ElementCollection
     @CollectionTable(
             name = "tb_paciente_alergia",
@@ -47,7 +45,6 @@ public class Paciente extends EntidadeBase {
     @Column(name = "alergia", length = 100)
     private List<String> alergiasConhecidas;
 
-    // 3. Restrições Alimentares (Cozinha)
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "tb_paciente_restricao_alimentar",
@@ -57,7 +54,6 @@ public class Paciente extends EntidadeBase {
     @Column(name = "restricao", nullable = false)
     private List<RestricaoAlimentar> restricoesAlimentares;
 
-    // 4. Condições Clínicas
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "tb_paciente_condicao_clinica",
@@ -77,7 +73,6 @@ public class Paciente extends EntidadeBase {
     )
     private List<ContatoEmergencia> contatosEmergencia;
 
-    // Método utilitário de domínio
     public boolean necessitaAtencaoNutricional() {
         return this.restricoesAlimentares != null && !this.restricoesAlimentares.isEmpty();
     }

@@ -25,7 +25,6 @@ public class ProntuarioService {
     private final EvolucaoClinicaRepository evolucaoClinicaRepository;
     private final PrescricaoMedicaRepository prescricaoMedicaRepository;
 
-    // 1. APENAS BUSCA! A criação já foi garantida pelo PacienteService na recepção.
     @Transactional(readOnly = true)
     public ProntuarioResponseDTO buscarResumoCompletoPorPacienteId(UUID pacienteId) {
         Prontuario prontuario = prontuarioRepository.findByPacienteId(pacienteId)
@@ -36,19 +35,17 @@ public class ProntuarioService {
         return ProntuarioResponseDTO.fromEntity(prontuario);
     }
 
-    // 2. REGISTRO DA EVOLUÇÃO
     @Transactional
     public void registrarEvolucao(EvolucaoClinicaCreateDTO dto, Usuario usuarioLogado) {
         Prontuario prontuario = prontuarioRepository.findById(dto.prontuarioId())
                 .orElseThrow(() -> new EntityNotFoundException("Prontuário não encontrado."));
 
-        // A MÁGICA DA SEGURANÇA: Busca o profissional usando a identidade real do token!
         ProfissionalSaude autor = profissionalSaudeRepository.findByPessoaFisicaId(usuarioLogado.getPessoaFisica().getId())
                 .orElseThrow(() -> new BusinessException("O usuário logado não possui um registro ativo de Profissional de Saúde."));
 
         EvolucaoClinica evolucao = new EvolucaoClinica();
         evolucao.setProntuario(prontuario);
-        evolucao.setAutor(autor); // <-- Assinatura Inviolável!
+        evolucao.setAutor(autor);
         evolucao.setEstadoClinico(dto.estadoClinico());
         evolucao.setDescricaoEvolucao(dto.descricaoEvolucao());
         evolucao.setCondutaAdotada(dto.condutaAdotada());
@@ -56,13 +53,12 @@ public class ProntuarioService {
         evolucaoClinicaRepository.save(evolucao);
     }
 
-    // 3. REGISTRO DA PRESCRIÇÃO (A Receita Médica)
     @Transactional
     public void registrarPrescricao(PrescricaoMedicaCreateDTO dto, Usuario usuarioLogado) {
         Prontuario prontuario = prontuarioRepository.findById(dto.prontuarioId())
                 .orElseThrow(() -> new EntityNotFoundException("Prontuário não encontrado."));
 
-        // A MÁGICA DA SEGURANÇA SE REPETE AQUI
+
         ProfissionalSaude autor = profissionalSaudeRepository.findByPessoaFisicaId(usuarioLogado.getPessoaFisica().getId())
                 .orElseThrow(() -> new BusinessException("O usuário logado não possui um registro ativo de Profissional de Saúde."));
 

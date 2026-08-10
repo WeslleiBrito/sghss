@@ -19,20 +19,16 @@ public class AuthService {
     private final TokenService tokenService;
 
     public TokenResponseDTO autenticar(LoginRequestDTO dto) {
-        // 1. Cria o objeto de credenciais nativo do Spring Security
+
         var credenciais = new UsernamePasswordAuthenticationToken(dto.login(), dto.senha());
 
-        // 2. Aciona o banco de dados via UserDetailsService. Se a senha errar, lança BadCredentialsException aqui mesmo!
         var authentication = authenticationManager.authenticate(credenciais);
 
-        // 3. Extrai o nosso usuário logado do objeto de autenticação
         Usuario usuarioLogado = (Usuario) authentication.getPrincipal();
 
-        // 4. Fabrica o token JWT
         assert usuarioLogado != null;
         String tokenJwt = tokenService.gerarToken(usuarioLogado);
 
-        // 5. Extrai os perfis como Strings normais (ex: "ROLE_RECEPCIONISTA", "ROLE_MEDICO")
         Set<String> perfis = usuarioLogado.getPerfisAcesso().stream()
                 .map(Enum::name)
                 .collect(Collectors.toSet());

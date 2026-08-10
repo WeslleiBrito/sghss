@@ -20,7 +20,6 @@ import java.util.List;
 @DiscriminatorValue("HOSPITAL")
 public class Clinica extends UnidadeSaude {
 
-    // O JPA criará uma tabela 'tb_clinica_especialidade' automaticamente para guardar a lista
     @ElementCollection
     @CollectionTable(name = "tb_clinica_especialidade", joinColumns = @JoinColumn(name = "clinica_id"))
     @Column(name = "especialidade")

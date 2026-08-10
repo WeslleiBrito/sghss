@@ -25,7 +25,5 @@ public interface EscalaRepository extends JpaRepository<Escala, UUID> {
             @Param("fim") LocalDateTime fim
     );
 
-    // O Spring gera o SQL automaticamente:
-    // WHERE colaborador_id = ? AND data_hora_inicio > ? ORDER BY data_hora_inicio ASC
     List<Escala> findByColaboradorIdAndDataHoraInicioAfterOrderByDataHoraInicioAsc(UUID colaboradorId, LocalDateTime dataHora);
 }

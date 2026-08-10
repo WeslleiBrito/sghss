@@ -11,7 +11,7 @@ public class Endereco {
     private String cep;
 
     @Column(length = 150)
-    private String logradouro; // Rua, Avenida, etc.
+    private String logradouro;
 
     @Column(length = 20)
     private String numero;

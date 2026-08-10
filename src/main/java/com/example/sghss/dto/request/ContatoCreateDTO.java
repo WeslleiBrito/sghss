@@ -14,7 +14,7 @@ public record ContatoCreateDTO(
 
         String observacao
 ) {
-    // O próprio DTO assume a responsabilidade de instanciar o Value Object [source: 8]
+
     public Contato toEntity() {
         Contato contato = new Contato();
         contato.setTipo(this.tipo());

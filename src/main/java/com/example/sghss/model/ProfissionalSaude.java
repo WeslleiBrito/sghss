@@ -28,28 +28,26 @@ public class ProfissionalSaude extends Colaborador {
     private String numeroConselho;
 
     @Column(name = "uf_conselho", nullable = false, length = 2)
-    private String ufConselho; // Ex: BA, SP, RJ
+    private String ufConselho;
 
-    // Um médico pode ser Cardiologista E Intensivista (UTI) ao mesmo tempo!
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "tb_profissional_especialidade", // Nome da tabela que o Hibernate vai criar no banco
-            joinColumns = @JoinColumn(name = "profissional_id"), // A chave estrangeira para o médico
-            inverseJoinColumns = @JoinColumn(name = "especialidade_id") // A chave estrangeira para a especialidade
+            name = "tb_profissional_especialidade",
+            joinColumns = @JoinColumn(name = "profissional_id"),
+            inverseJoinColumns = @JoinColumn(name = "especialidade_id")
     )
     private List<Especialidade> especialidades = new ArrayList<>();
 
-    // Regras de Atendimento
+
     @Column(name = "permite_telemedicina", nullable = false)
     private Boolean permiteTelemedicina = false;
 
     @Column(name = "possui_assinatura_digital_icp", nullable = false)
-    private Boolean possuiAssinaturaDigitalIcp = false; // Necessário para receita eletrônica válida
+    private Boolean possuiAssinaturaDigitalIcp = false;
 
     @Column(name = "tempo_medio_consulta_minutos", nullable = false)
-    private Integer tempoMedioConsultaMinutos = 30; // Ajuda a recepção a calcular a agenda
+    private Integer tempoMedioConsultaMinutos = 30;
 
-    // Método utilitário para exibição no front-end ou em receituários
     public String getIdentificacaoProfissional() {
         return String.format("%s/%s %s", this.tipoConselho, this.ufConselho, this.numeroConselho);
     }

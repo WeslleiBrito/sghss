@@ -10,5 +10,4 @@ import java.util.UUID;
 @Repository
 public interface PessoaFisicaRepository extends JpaRepository<PessoaFisica, UUID> {
     Optional<PessoaFisica> findByCpf(String cpf);
-    boolean existsByCpf(String cpf);
 }

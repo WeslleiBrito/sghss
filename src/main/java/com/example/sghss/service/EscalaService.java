@@ -58,7 +58,6 @@ public class EscalaService {
 
     @Transactional(readOnly = true)
     public List<EscalaResumoDTO> listarEscalasFuturasPorProfissional(UUID profissionalId) {
-        // Pega o momento exato em que a recepcionista clicou no médico
         LocalDateTime agora = LocalDateTime.now();
 
         return escalaRepository.findByColaboradorIdAndDataHoraInicioAfterOrderByDataHoraInicioAsc(profissionalId, agora)

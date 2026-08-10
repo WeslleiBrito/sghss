@@ -37,13 +37,11 @@ public class AgendamentoService {
         Escala escala = escalaRepository.findById(dto.escalaId())
                 .orElseThrow(() -> new EntityNotFoundException("Escala não encontrada."));
 
-        // Garantir que a hora está dentro da escala do profissional
         if (dto.dataHoraAgendada().isBefore(escala.getDataHoraInicio()) ||
                 dto.dataHoraAgendada().isAfter(escala.getDataHoraFim())) {
             throw new BusinessException("O horário solicitado está fora do turno de trabalho desta escala.");
         }
 
-        // Checagem de Conflitos pegando o ID de dentro da Escala!
         if (agendamentoRepository.existeConflitoHorarioProfissional(escala.getColaborador().getId(), dto.dataHoraAgendada())) {
             throw new BusinessException("O profissional já possui um atendimento marcado para este horário.");
         }
@@ -57,7 +55,7 @@ public class AgendamentoService {
         String codigoUnico = java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         agendamento.setCodigoAgendamento("AGE-" + anoAtual + "-" + codigoUnico);
         agendamento.setPaciente(paciente);
-        agendamento.setEscala(escala); // Só precisa setar a escala!
+        agendamento.setEscala(escala);
         agendamento.setTipoAtendimento(dto.tipoAtendimento());
         agendamento.setDataHoraAgendada(dto.dataHoraAgendada());
         agendamento.setStatusAgendamento(StatusAgendamento.AGENDADO);
@@ -71,9 +69,6 @@ public class AgendamentoService {
         return AgendamentoResponseDTO.fromEntity(salvo);
     }
 
-    // =========================================================================
-    // --- MÉTODOS DE TRANSFORMAÇÃO DE ESTADO (MÁQUINA DE ESTADOS) ---
-    // =========================================================================
 
     @Transactional
     public AgendamentoResponseDTO realizarCheckIn(UUID agendamentoId) {
@@ -123,47 +118,35 @@ public class AgendamentoService {
 
     @Transactional(readOnly = true)
     public List<HorarioDisponivelDTO> listarHorariosDisponiveis(UUID escalaId) {
-        // 1. Busca a escala para saber o início e o fim do plantão/ambulatório [source: 5, 7]
         Escala escala = escalaRepository.findById(escalaId)
                 .orElseThrow(() -> new EntityNotFoundException("Escala não encontrada."));
 
-        // 2. Busca no banco apenas as datas/horas que JÁ ESTÃO OCUPADAS [source: 6]
         List<LocalDateTime> horariosOcupados = agendamentoRepository.findHorariosOcupadosPorEscala(escalaId);
 
         List<HorarioDisponivelDTO> gradeDisponivel = new ArrayList<>();
 
-        // 3. Define o tempo do "step" de cada consulta (Ex: 30 em 30 minutos) [source: 7]
         int duracaoConsultaMinutos = 30;
         LocalDateTime slotAtual = escala.getDataHoraInicio() ;
 
-        // 4. Loop que fatia a agenda do início ao fim [source: 5, 7]
         while (slotAtual.isBefore(escala.getDataHoraFim())) {
 
-            // Um horário só está livre se NÃO estiver na lista de ocupados E não for no passado [source: 7]
             boolean estaLivre = !horariosOcupados.contains(slotAtual) && slotAtual.isAfter(LocalDateTime.now()) ;
-
-            // Formata a hora para "HH:mm" (ex: "14:30") para facilitar a criação dos botões no front
             String horaString = slotAtual.toLocalTime().toString();
 
-            // Adiciona na lista que será devolvida
             if (estaLivre) {
                 gradeDisponivel.add(new HorarioDisponivelDTO(slotAtual, horaString, true));
             }
 
-            // Pula para o próximo slot (08:00 -> 08:30 -> 09:00...) [source: 7]
             slotAtual = slotAtual.plusMinutes(duracaoConsultaMinutos) ;
         }
 
         return gradeDisponivel;
     }
 
-    // =========================================================================
-    // --- CONSULTAS E LISTAGENS (AS VISÕES DO SISTEMA) ---
-    // =========================================================================
 
     @Transactional(readOnly = true)
     public List<AgendamentoResponseDTO> listarAgendamentosDoDia() {
-        // Pega do primeiro segundo de hoje até o último segundo de hoje
+
         LocalDateTime inicioDoDia = java.time.LocalDate.now().atStartOfDay();
         LocalDateTime fimDoDia = java.time.LocalDate.now().atTime(java.time.LocalTime.MAX);
 
@@ -183,7 +166,6 @@ public class AgendamentoService {
 
     @Transactional(readOnly = true)
     public List<AgendamentoResponseDTO> listarPorPaciente(UUID pacienteId) {
-        // Já existia essa query no seu repositório!
         return agendamentoRepository.findByPacienteIdOrderByDataHoraAgendadaDesc(pacienteId)
                 .stream()
                 .map(AgendamentoResponseDTO::fromEntity)
@@ -192,8 +174,8 @@ public class AgendamentoService {
 
     @Transactional(readOnly = true)
     public List<AgendamentoResponseDTO> buscarAgendaPorData(LocalDate data) {
-        LocalDateTime inicioDoDia = data.atStartOfDay(); // 00:00:00
-        LocalDateTime fimDoDia = data.atTime(23, 59, 59); // 23:59:59
+        LocalDateTime inicioDoDia = data.atStartOfDay();
+        LocalDateTime fimDoDia = data.atTime(23, 59, 59);
 
         return agendamentoRepository.findByDataHoraAgendadaBetween(inicioDoDia, fimDoDia)
                 .stream()
@@ -201,15 +183,12 @@ public class AgendamentoService {
                 .toList();
     }
 
-    // Adicione no seu AgendamentoService.java:
-
     @Transactional(readOnly = true)
     public List<AgendamentoResponseDTO> listarMinhaFila(Usuario usuarioLogado) {
-        // 1. Descobre quem é o profissional usando o usuário do Token JWT
+
         ProfissionalSaude profissional = profissionalSaudeRepository.findByPessoaFisicaId(usuarioLogado.getPessoaFisica().getId())
                 .orElseThrow(() -> new BusinessException("O usuário logado não possui um registro ativo de Profissional de Saúde."));
 
-        // 2. Busca a agenda baseada no ID real e seguro dele
         return agendamentoRepository.findByEscalaColaboradorIdOrderByDataHoraAgendadaAsc(profissional.getId())
                 .stream()
                 .map(AgendamentoResponseDTO::fromEntity)

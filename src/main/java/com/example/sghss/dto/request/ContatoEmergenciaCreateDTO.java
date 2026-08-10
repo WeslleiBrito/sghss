@@ -13,7 +13,6 @@ public record ContatoEmergenciaCreateDTO(
         @NotNull(message = "O grau de parentesco é obrigatório.")
         TipoParentesco parentesco,
 
-        // @Valid faz o Spring validar o tipo (telefone, whatsapp) e o número dentro de ContatoCreateDTO!
         @Valid
         @NotNull(message = "Os dados de comunicação do contato são obrigatórios.")
         ContatoCreateDTO contato

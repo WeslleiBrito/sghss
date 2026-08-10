@@ -12,5 +12,4 @@ public interface EspecialidadeRepository extends JpaRepository<Especialidade, UU
 
     Optional<Especialidade> findByNome(String nome);
 
-    boolean existsByNome(String nome);
 }

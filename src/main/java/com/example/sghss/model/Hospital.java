@@ -24,7 +24,7 @@ public class Hospital extends UnidadeSaude {
 
     @Override
     public boolean consultarDisponibilidade() {
-        // Exemplo: Um hospital só está disponível se operar e tiver leitos
+
         return this.getStatusOperacao() && (this.quantidadeLeitos != null && this.quantidadeLeitos > 0);
     }
 

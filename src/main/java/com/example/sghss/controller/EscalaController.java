@@ -27,7 +27,6 @@ public class EscalaController {
         return ResponseEntity.ok(escalaService.listarEscalasVigentes());
     }
 
-    // A rota que o Front-end vai chamar quando o primeiro dropdown for selecionado
     @GetMapping("/profissional/{profissionalId}")
     @PreAuthorize("hasAnyRole('RECEPCIONISTA', 'ADMIN', 'PACIENTE')")
     public ResponseEntity<List<EscalaResumoDTO>> listarEscalasDoProfissional(@PathVariable UUID profissionalId) {

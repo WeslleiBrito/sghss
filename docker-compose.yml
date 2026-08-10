@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # Máquina 1: Banco de Dados PostgreSQL
   db:
     image: postgres:16-alpine
     container_name: sghss_db
@@ -14,21 +11,22 @@ services:
     volumes:
       - sghss_novo_data:/var/lib/postgresql/data
 
-  # Máquina 2: Aplicação Spring Boot (Backend)
   app:
     build: .
     container_name: sghss_backend
-    restart: on-failure  # Faz o Java reiniciar se o banco ainda estiver acordando
+    restart: on-failure
     ports:
       - "8080:8080"
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/sghss_db
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=rootpassword
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - JWT_SECRET=${JWT_SECRET}
 
-# Volume exclusivo para evitar conflito com bancos antigos
 volumes:
   sghss_novo_data:

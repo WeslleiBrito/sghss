@@ -17,7 +17,6 @@ public class ProfissionalSaudeService {
 
     @Transactional(readOnly = true)
     public List<ProfissionalResumoDTO> listarProfissionaisAtivos() {
-        // TROCAMOS AQUI! Agora ele chama a query que filtra quem tem escala.
         return profissionalSaudeRepository.findProfissionaisComEscalaFutura()
                 .stream()
                 .map(ProfissionalResumoDTO::fromEntity)

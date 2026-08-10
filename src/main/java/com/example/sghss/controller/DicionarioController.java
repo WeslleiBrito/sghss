@@ -19,8 +19,8 @@ public class DicionarioController {
     public ResponseEntity<List<DicionarioResponseDTO>> listarTiposContato() {
         List<DicionarioResponseDTO> lista = Arrays.stream(TipoContato.values())
                 .map(tipo -> new DicionarioResponseDTO(
-                        tipo.name(), // Mantém a string técnica para o Request ("WHATSAPP")
-                        tipo.getDescricao() // Pega o nome bonito que você definiu ("WhatsApp")
+                        tipo.name(),
+                        tipo.getDescricao()
                 ))
                 .toList();
 
@@ -32,7 +32,7 @@ public class DicionarioController {
         List<DicionarioResponseDTO> lista = Arrays.stream(TipoParentesco.values())
                 .map(tipo -> new DicionarioResponseDTO(
                         tipo.name(),
-                        tipo.getDescricao() // Utiliza a descrição já definida no seu Enum
+                        tipo.getDescricao()
                 ))
                 .toList();
 

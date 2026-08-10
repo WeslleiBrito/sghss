@@ -15,8 +15,8 @@ import java.time.ZoneOffset;
 @Service
 public class TokenService {
 
-    // Lê do application.properties ou usa um valor padrão forte para o MVP
-    @Value("${api.security.token.secret:sghss-chave-secreta-mvp-2026}")
+
+    @Value("${api.security.token.secret}")
     private String secret;
 
     public String gerarToken(Usuario usuario) {
@@ -39,14 +39,13 @@ public class TokenService {
                     .withIssuer("SGHSS-API")
                     .build()
                     .verify(tokenJWT)
-                    .getSubject(); // Devolve o login (e-mail/CPF) extraído do token
+                    .getSubject();
         } catch (JWTVerificationException exception) {
-            return ""; // Se expirado ou fraudado, retorna string vazia para o filtro rejeitar
+            return "";
         }
     }
 
     private Instant gerarDataExpiracao() {
-        // Horário de Brasília (-03:00) com validade de 8 horas
         return LocalDateTime.now().plusHours(8).toInstant(ZoneOffset.of("-03:00"));
     }
 }

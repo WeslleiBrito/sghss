@@ -17,7 +17,6 @@ public abstract class UnidadeSaude extends Pessoa {
     @Column(name = "status_operacao", nullable = false)
     private Boolean statusOperacao;
 
-    // É aqui que a Unidade diz a qual Holding/Instituição ela pertence!
     @ManyToOne(optional = false)
     @JoinColumn(name = "instituicao_id", nullable = false)
     private Instituicao instituicao;

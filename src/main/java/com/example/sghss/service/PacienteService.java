@@ -21,7 +21,6 @@ public class PacienteService {
     private final PacienteRepository pacienteRepository;
     private final PessoaFisicaService pessoaFisicaService;
 
-    // A MÁGICA: Injetamos o repositório do prontuário aqui!
     private final ProntuarioRepository prontuarioRepository;
 
     @Transactional
@@ -32,20 +31,15 @@ public class PacienteService {
 
         PessoaFisica pessoaFisica = pessoaFisicaService.criarOuRecuperarPessoaFisica(dto.pessoaFisica());
         Paciente paciente = dto.toEntity(pessoaFisica);
-
-        // 1. Salva o Paciente primeiro para gerar o UUID dele no banco
         Paciente salvo = pacienteRepository.save(paciente);
 
-        // 2. Cria a "Pasta Virtual" (Prontuário) amarrada ao paciente recém-criado
         Prontuario prontuario = new Prontuario();
-        // GERA UM CÓDIGO SEGURO E BONITO: Ex: "PEP-2026-A4B9F2E1"
         String anoAtual = String.valueOf(java.time.LocalDate.now().getYear());
         String codigoUnico = java.util.UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         prontuario.setNumeroProntuario("PEP-" + anoAtual + "-" + codigoUnico);
         prontuario.setPaciente(salvo);
         prontuarioRepository.save(prontuario);
 
-        // Retorno limpo acionando o construtor do seu Record!
         return new PacienteResponseDTO(salvo);
     }
 

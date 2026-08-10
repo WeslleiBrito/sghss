@@ -38,7 +38,7 @@ public class ProntuarioController {
     @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public ResponseEntity<Void> registrarEvolucao(
             @Valid @RequestBody EvolucaoClinicaCreateDTO dto,
-            @AuthenticationPrincipal Usuario usuarioLogado) { // O Spring injeta isso automático baseado no Token JWT!
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
         prontuarioService.registrarEvolucao(dto, usuarioLogado);
         return ResponseEntity.status(201).build();
@@ -46,10 +46,10 @@ public class ProntuarioController {
 
     // 3. O médico assina a Receita (Prescrição)
     @PostMapping("/prescricoes")
-    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')") // Autorizado para perfis clínicos
+    @PreAuthorize("hasAnyRole('MEDICO', 'ENFERMEIRO')")
     public ResponseEntity<Void> registrarPrescricao(
             @Valid @RequestBody PrescricaoMedicaCreateDTO dto,
-            @AuthenticationPrincipal Usuario usuarioLogado) { // Assinatura real!
+            @AuthenticationPrincipal Usuario usuarioLogado) {
 
         prontuarioService.registrarPrescricao(dto, usuarioLogado);
         return ResponseEntity.status(201).build();

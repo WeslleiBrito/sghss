@@ -8,13 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> {
-
-    Optional<Agendamento> findByCodigoAgendamento(String codigoAgendamento);
 
     List<Agendamento> findByPacienteIdOrderByDataHoraAgendadaDesc(UUID pacienteId);
 
@@ -32,7 +29,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, UUID> 
             @Param("dataHora") LocalDateTime dataHora
     );
 
-    // 2. NOVO: Blindagem para o Paciente não duplicar agendamentos no mesmo horário
+
     @Query("""
         SELECT COUNT(a) > 0 FROM Agendamento a 
         WHERE a.paciente.id = :pacienteId 

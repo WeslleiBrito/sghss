@@ -19,13 +19,13 @@ import java.util.List;
 public class PrescricaoMedica extends EntidadeBase {
 
     @Column(name = "numero_prescricao", nullable = false, unique = true, length = 30)
-    private String numeroPrescricao; // Ex: "PRES-2026-8841"
+    private String numeroPrescricao;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "prontuario_id", nullable = false)
     private Prontuario prontuario;
 
-    // Quem assumiu a responsabilidade clínica? Exige CRM/COREN ativo!
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "profissional_id", nullable = false)
     private ProfissionalSaude profissionalSaude;
@@ -34,9 +34,8 @@ public class PrescricaoMedica extends EntidadeBase {
     private LocalDateTime dataHoraEmissao = LocalDateTime.now();
 
     @Column(name = "data_hora_validade", nullable = false)
-    private LocalDateTime dataHoraValidade; // Para internação, normalmente dataHoraEmissao.plusHours(24)
+    private LocalDateTime dataHoraValidade;
 
-    // A validação legal que desenvolvemos na entidade ProfissionalSaude!
     @Column(name = "assinada_digitalmente_icp", nullable = false)
     private Boolean assinadaDigitalmenteIcp = false;
 
@@ -47,7 +46,6 @@ public class PrescricaoMedica extends EntidadeBase {
     @ToString.Exclude
     private List<ItemPrescricao> itens;
 
-    // Método de negócio: Verifica se a prescrição ainda pode ser executada pela enfermagem
     public boolean isValidaParaExecucao() {
         return LocalDateTime.now().isBefore(this.dataHoraValidade);
     }

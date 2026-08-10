@@ -30,7 +30,7 @@ public class Escala extends EntidadeBase {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "unidade_saude_id", nullable = false)
-    private UnidadeSaude unidadeSaude; // Onde ele vai estar fisicamente
+    private UnidadeSaude unidadeSaude;
 
     @Column(name = "data_hora_inicio", nullable = false)
     private LocalDateTime dataHoraInicio;

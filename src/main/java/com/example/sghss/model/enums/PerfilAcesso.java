@@ -15,14 +15,13 @@ public enum PerfilAcesso {
             Permissao.PRONTUARIO_ESCREVER,
             Permissao.EXAME_SOLICITAR,
             Permissao.EXAME_LAUDAR,
-            Permissao.AGENDAMENTO_CRIAR // Pode remarcar retorno do seu paciente
+            Permissao.AGENDAMENTO_CRIAR
     )),
 
     // 2. ENFERMAGEM: Acesso clínico para evolução, anotações de enfermagem e triagem
     ROLE_ENFERMEIRO(Set.of(
             Permissao.PRONTUARIO_LER,
             Permissao.PRONTUARIO_ESCREVER
-            // Caso você crie uma permissão específica no futuro (ex: Permissao.TRIAGEM_REALIZAR), você pode adicionar aqui.
     )),
 
     // 3. RECEPCIONISTA: Poder operacional na agenda e check-in
@@ -49,7 +48,7 @@ public enum PerfilAcesso {
 
     // 6. PACIENTE: Acesso restrito apenas para interagir com seus próprios dados via App
     ROLE_PACIENTE(Set.of(
-            Permissao.PRONTUARIO_LER, // (O Spring Security garantirá via contexto que é apenas o DELE)
+            Permissao.PRONTUARIO_LER,
             Permissao.AGENDAMENTO_CRIAR
     ));
 
@@ -59,15 +58,13 @@ public enum PerfilAcesso {
         this.permissoes = permissoes;
     }
 
-    // MÁGICA PARA O SPRING SECURITY:
-    // Converte as permissões em objetos que o framework entende nativamente!
+
     public List<SimpleGrantedAuthority> getAuthorities() {
         var authorities = getPermissoes()
                 .stream()
                 .map(permissao -> new SimpleGrantedAuthority(permissao.getStringPermissao()))
                 .collect(Collectors.toList());
 
-        // Adiciona também a própria Role (ex: "ROLE_MEDICO") para flexibilidade
         authorities.add(new SimpleGrantedAuthority(this.name()));
         return authorities;
     }

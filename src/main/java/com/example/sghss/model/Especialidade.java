@@ -15,9 +15,9 @@ public class Especialidade extends EntidadeBase {
 
 
     @Column(nullable = false, unique = true, length = 100)
-    private String nome; // Ex: "Cardiologia", "Pediatria"
+    private String nome;
 
     @Column(length = 255)
-    private String descricao; // Ex: "Especialidade médica que se ocupa do diagnóstico e tratamento das doenças do coração."
+    private String descricao;
 
 }

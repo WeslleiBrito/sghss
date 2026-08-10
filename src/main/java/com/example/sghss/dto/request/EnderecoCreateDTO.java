@@ -28,7 +28,7 @@ public record EnderecoCreateDTO(
         @Size(min = 2, max = 2, message = "A UF deve conter exatamente 2 caracteres (Ex: BA, SP, RJ).")
         String uf
 ) {
-    // Conversão limpa para o Value Object Endereco [source: 8]
+
     public Endereco toEntity() {
         Endereco endereco = new Endereco();
         endereco.setCep(this.cep());

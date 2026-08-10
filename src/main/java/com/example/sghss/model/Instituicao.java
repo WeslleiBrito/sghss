@@ -1,6 +1,5 @@
 package com.example.sghss.model;
 
-import com.example.sghss.model.base.Pessoa;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -15,14 +15,11 @@ import java.util.List;
 @Entity
 @Table(name = "tb_pessoa")
 @Inheritance(strategy = InheritanceType.JOINED)
-// 1. Cria fisicamente a coluna na tabela raiz tb_pessoa
 @DiscriminatorColumn(name = "tipo_pessoa", discriminatorType = DiscriminatorType.STRING)
 public abstract class Pessoa extends EntidadeBase {
 
     @ElementCollection
     private List<Contato> contatos;
-
-    // 2. Expose a coluna no Java para leitura, mas deixa o JPA gerenciar a gravação via DiscriminatorValue
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_pessoa", insertable = false, updatable = false)
     private TipoPessoa tipoPessoa;

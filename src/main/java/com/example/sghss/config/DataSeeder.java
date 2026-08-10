@@ -1,7 +1,6 @@
 package com.example.sghss.config;
 
 import com.example.sghss.model.*;
-import com.example.sghss.model.base.UnidadeSaude;
 import com.example.sghss.model.enums.*;
 import com.example.sghss.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -141,10 +140,10 @@ public class DataSeeder implements CommandLineRunner {
 
     private void gerarAgendaParaMedico(ProfissionalSaude medico, Clinica clinica, List<Paciente> pacientes, List<Especialidade> todasEspecialidades) {
 
-        // GARANTIA DE ESPECIALIDADE
-        Especialidade especialidadeDaConsulta = todasEspecialidades.get(0);
+        // ESPECIALIDADE
+        Especialidade especialidadeDaConsulta = todasEspecialidades.getFirst();
         if (medico.getEspecialidades() != null && !medico.getEspecialidades().isEmpty()) {
-            especialidadeDaConsulta = medico.getEspecialidades().get(0);
+            especialidadeDaConsulta = medico.getEspecialidades().getFirst();
         }
 
         // Gerando escalas de ontem até 4 dias no futuro
@@ -155,7 +154,6 @@ public class DataSeeder implements CommandLineRunner {
             escala.setColaborador(medico);
             escala.setUnidadeSaude(clinica);
             escala.setTipoAtividade(TipoAtividade.AMBULATORIO);
-            // Escala de 4 horas diárias (8 slots de 30 minutos)
             escala.setDataHoraInicio(dataEscala.atTime(8, 0));
             escala.setDataHoraFim(dataEscala.atTime(12, 0));
             escala = escalaRepository.save(escala);
@@ -163,9 +161,6 @@ public class DataSeeder implements CommandLineRunner {
             LocalDateTime slotAtual = escala.getDataHoraInicio();
             while (slotAtual.isBefore(escala.getDataHoraFim())) {
 
-                // Usando nextBoolean() damos ~50% de chance de agendar.
-                // Isso GARANTE buracos (vagas disponíveis) na agenda de todos os médicos,
-                // ao mesmo tempo em que espalha pacientes pela semana.
                 if (random.nextBoolean()) {
                     Paciente pacienteSorteado = pacientes.get(random.nextInt(pacientes.size()));
 
@@ -177,21 +172,18 @@ public class DataSeeder implements CommandLineRunner {
                     ag.setTipoAtendimento(TipoAtendimento.CONSULTA_ROTINA);
                     ag.setDataHoraAgendada(slotAtual);
 
-                    // Lógica temporal de Status
                     if (slotAtual.isBefore(LocalDateTime.now())) {
                         ag.setStatusAgendamento(random.nextBoolean() ? StatusAgendamento.CONCLUIDO : StatusAgendamento.FALTA);
                     } else if (slotAtual.toLocalDate().isEqual(LocalDate.now()) && slotAtual.isBefore(LocalDateTime.now().plusHours(2))) {
-                        // Apenas para slots de hoje bem próximos do horário atual para testes do painel
                         ag.setStatusAgendamento(StatusAgendamento.AGUARDANDO_ATENDIMENTO);
                         ag.setDataHoraCheckin(LocalDateTime.now().minusMinutes(15));
                     } else {
-                        // Futuro (hoje mais tarde ou dias seguintes): GARANTE O STATUS AGENDADO
                         ag.setStatusAgendamento(StatusAgendamento.AGENDADO);
                     }
 
                     agendamentoRepository.save(ag);
                 }
-                slotAtual = slotAtual.plusMinutes(30); // O slot que não caiu no if() fica como Vaga Disponível
+                slotAtual = slotAtual.plusMinutes(30);
             }
         }
     }
@@ -342,15 +334,14 @@ public class DataSeeder implements CommandLineRunner {
 
             salvas.add(salvo);
 
-            // ---- NOVA LÓGICA DE CRIAÇÃO DE USUÁRIO PARA O PACIENTE ----
             String loginFormatado = "paciente." + formatarNomeParaLogin(nome) + "." + i + "@sghss.com";
 
             Usuario userPac = new Usuario();
             userPac.setPessoaFisica(pf);
             userPac.setLogin(loginFormatado);
-            // Mesma senha padrão[cite: 1]
+
             userPac.setSenha(passwordEncoder.encode("123456"));
-            userPac.setPerfisAcesso(Set.of(PerfilAcesso.ROLE_PACIENTE)); // Utilizando o PerfilAcesso do enum[cite: 1]
+            userPac.setPerfisAcesso(Set.of(PerfilAcesso.ROLE_PACIENTE));
             userPac.setAtivo(true);
 
             usuarioRepository.save(userPac);

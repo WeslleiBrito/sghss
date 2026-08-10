@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record PacienteCreateDTO(
-        // A MÁGICA DO CADASTRO ÚNICO: Valida Nome, CPF, Data, Contatos e Endereços civis em cascata!
+
         @Valid
         @NotNull(message = "Os dados de identificação civil (Pessoa Física) são obrigatórios.")
         PessoaFisicaCreateDTO pessoaFisica,
@@ -24,14 +24,13 @@ public record PacienteCreateDTO(
 
         String anotacoesGerais
 ) {
-        // Como o Paciente PRECISA saber quem é a sua Pessoa Física, nós passamos ela como parâmetro no método:
+
         public Paciente toEntity(PessoaFisica pessoaFisicaGerenciada) {
                 Paciente paciente = new Paciente();
                 paciente.setPessoaFisica(pessoaFisicaGerenciada);
                 paciente.setCartaoSus(this.cartaoSus());
                 paciente.setAnotacoesGerais(this.anotacoesGerais());
 
-                // Mapeamento limpo da lista de contatos de urgência
                 if (this.contatosEmergencia() != null && !this.contatosEmergencia().isEmpty()) {
                         paciente.setContatosEmergencia(
                                 this.contatosEmergencia().stream()
@@ -42,7 +41,6 @@ public record PacienteCreateDTO(
                         paciente.setContatosEmergencia(new ArrayList<>());
                 }
 
-                // BLINDAGEM CLÍNICA: Nascem rigorosamente vazios à espera da triagem ou consulta!
                 paciente.setTipoSanguineo(null);
                 paciente.setAlergiasConhecidas(new ArrayList<>());
                 paciente.setRestricoesAlimentares(new ArrayList<>());

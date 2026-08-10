@@ -20,19 +20,18 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class Usuario extends EntidadeBase implements UserDetails {
 
-    // A MÁGICA: O login está amarrado ao CPF/Pessoa Física única do cidadão!
+
     @OneToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "pessoa_fisica_id", nullable = false, unique = true)
     private PessoaFisica pessoaFisica;
 
     @Column(nullable = false, unique = true, length = 100)
-    private String login; // Pode ser o e-mail corporativo ou o CPF
+    private String login;
 
     @Column(nullable = false)
     private String senha;
 
-    // É AQUI E SOMENTE AQUI QUE ESTÃO OS PERFIS DE ACESSO!
-    @ElementCollection(fetch = FetchType.EAGER)
+
     @CollectionTable(name = "tb_usuario_perfil", joinColumns = @JoinColumn(name = "usuario_id"))
     @Enumerated(EnumType.STRING)
     @Column(name = "perfil", nullable = false)

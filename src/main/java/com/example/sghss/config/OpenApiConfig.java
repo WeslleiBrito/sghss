@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
                 description = "API RESTful para gestão clínica, agendamento de consultas e prontuário eletrônico do paciente (PEP).",
                 contact = @Contact(name = "Equipe de Desenvolvimento Back-end")
         ),
-        // Aplica o cadeado de segurança em TODOS os endpoints por padrão na tela do Swagger:
+
         security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(

@@ -13,7 +13,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // Foco cirúrgico da auditoria: Apenas dados sensíveis
         registry.addInterceptor(auditoriaInterceptor)
                 .addPathPatterns(
                         "/api/v1/pacientes/**",

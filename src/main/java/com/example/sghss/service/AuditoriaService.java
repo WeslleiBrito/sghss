@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 public class AuditoriaService {
 
     private final LogAuditoriaRepository logAuditoriaRepository;
-
-    // O @Async joga a gravação do log para uma thread paralela!
     @Async
     public void registrarLogLeitura(String usuario, String endpoint, String parametros, String ip) {
         LogAuditoria log = new LogAuditoria();

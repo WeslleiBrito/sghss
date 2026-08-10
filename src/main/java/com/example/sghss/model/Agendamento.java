@@ -23,7 +23,6 @@ public class Agendamento extends EntidadeBase {
     @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 
-    // --- CIRURGIA FEITA AQUI: Profissional e Unidade removidos! A Escala é a dona da verdade. ---
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "escala_id", nullable = false)
     private Escala escala;
@@ -59,19 +58,6 @@ public class Agendamento extends EntidadeBase {
     private String observacoesRecepcao;
 
 
-    // =========================================================================
-    // --- MÉTODOS DE REGRA DE DOMÍNIO (MÁQUINA DE ESTADOS) ---
-    // =========================================================================
-
-    // 1. CONFIRMAÇÃO (O paciente respondeu SMS/WhatsApp ou o App confirmou)
-    public void confirmar() {
-        if (this.statusAgendamento != StatusAgendamento.AGENDADO) {
-            throw new BusinessException("Apenas agendamentos no status AGENDADO podem ser confirmados.");
-        }
-        this.statusAgendamento = StatusAgendamento.CONFIRMADO;
-    }
-
-    // 2. CHECK-IN NA RECEPÇÃO (Atividade-Meio)
     public boolean canRealizarCheckIn() {
         return this.statusAgendamento == StatusAgendamento.AGENDADO ||
                 this.statusAgendamento == StatusAgendamento.CONFIRMADO;
@@ -85,9 +71,9 @@ public class Agendamento extends EntidadeBase {
         this.dataHoraCheckin = LocalDateTime.now();
     }
 
-    // 3. INÍCIO DO ATENDIMENTO MÉDICO (O Médico chamou no painel)
+
     public boolean canIniciarAtendimento() {
-        // Blindagem: O médico só chama quem passou pela triagem/recepção!
+
         return this.statusAgendamento == StatusAgendamento.AGUARDANDO_ATENDIMENTO;
     }
 
@@ -99,7 +85,7 @@ public class Agendamento extends EntidadeBase {
         this.dataHoraInicioAtendimento = LocalDateTime.now();
     }
 
-    // 4. CONCLUSÃO DO ATENDIMENTO (O Médico finalizou a consulta)
+
     public void concluir() {
         if (this.statusAgendamento != StatusAgendamento.EM_ATENDIMENTO) {
             throw new BusinessException("Não é possível concluir um atendimento que não foi iniciado.");
@@ -108,9 +94,8 @@ public class Agendamento extends EntidadeBase {
         this.dataHoraFimAtendimento = LocalDateTime.now();
     }
 
-    // 5. CANCELAMENTO (Pelo paciente, clínica ou por erro de agendamento)
+
     public void cancelar(String motivo) {
-        // Não se pode cancelar algo que já está acontecendo ou já terminou!
         if (this.statusAgendamento == StatusAgendamento.EM_ATENDIMENTO ||
                 this.statusAgendamento == StatusAgendamento.CONCLUIDO) {
             throw new BusinessException("Agendamentos em andamento ou já concluídos não podem ser cancelados.");
@@ -122,13 +107,4 @@ public class Agendamento extends EntidadeBase {
         this.motivoCancelamento = motivo;
     }
 
-    // 6. REGISTRO DE FALTA (No-Show)
-    public void registrarFalta() {
-        // Só toma falta quem estava agendado/confirmado e não apareceu no hospital
-        if (this.statusAgendamento != StatusAgendamento.AGENDADO &&
-                this.statusAgendamento != StatusAgendamento.CONFIRMADO) {
-            throw new BusinessException("A falta só pode ser registrada para agendamentos pendentes de comparecimento.");
-        }
-        this.statusAgendamento = StatusAgendamento.FALTA;
-    }
 }

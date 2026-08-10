@@ -15,7 +15,6 @@ public class ContatoEmergencia {
     @Column(name = "tipo_parentesco", nullable = false, length = 30)
     private TipoParentesco parentesco;
 
-    // A MÁGICA: Reutilizamos o Value Object Contato em vez de criar campos de telefone soltos!
     @Embedded
     private Contato contato;
 }

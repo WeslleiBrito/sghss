@@ -15,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component // -> ESSA É A ANOTAÇÃO MÁGICA QUE RESOLVE O ERRO DE BEAN NÃO ENCONTRADO!
+@Component
 @RequiredArgsConstructor
 public class SecurityFilter extends OncePerRequestFilter {
 
